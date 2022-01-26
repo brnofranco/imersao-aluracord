@@ -1,34 +1,10 @@
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
+
 import { Box, Button, Text, TextField, Image } from '@skynexui/components';
 import appConfig from '../config.json';
 
-function GlobalStyle() {
-  return (
-    <style global jsx>{`
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        list-style: none;
-      }
-      body {
-        font-family: 'Open Sans', sans-serif;
-      }
-      /* App fit Height */ 
-      html, body, #__next {
-        min-height: 100vh;
-        display: flex;
-        flex: 1;
-      }
-      #__next {
-        flex: 1;
-      }
-      #__next > * {
-        flex: 1;
-      }
-      /* ./App fit Height */ 
-    `}</style>
-  );
-}
+
 
 function Title(props) {
   const Tag = props.tag || 'h1';
@@ -47,16 +23,27 @@ function Title(props) {
 }
 
 export default function PaginaInicial() {
-  const username = 'brnofranco';
+  const [username, setUsername] = useState('');
+  const [name, setName] = useState('');
+
+  const router = useRouter();
+
+  useEffect(() => {
+    fetch(`https://api.github.com/users/${username}`)
+    .then((response) => response.json())
+    .then((fullResponse) => {
+      setName(fullResponse.name);
+    });
+
+  }, [username]);
 
   return (
     <>
-      <GlobalStyle />
       <Box
         styleSheet={{
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           backgroundColor: appConfig.theme.colors.primary[500],
-          backgroundImage: 'url(https://virtualbackgrounds.site/wp-content/uploads/2020/08/the-matrix-digital-rain.jpg)',
+          backgroundImage: 'url(http://www.osmais.com/wallpapers/201406/praia-tropical-deserta-wallpaper.jpg)',
           backgroundRepeat: 'no-repeat', backgroundSize: 'cover', backgroundBlendMode: 'multiply',
         }}
       >
@@ -78,6 +65,11 @@ export default function PaginaInicial() {
           {/* Formulário */}
           <Box
             as="form"
+            onSubmit={
+              (event) => {
+                event.preventDefault();
+                router.push('/chat');
+              }}
             styleSheet={{
               display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
               width: { xs: '100%', sm: '50%' }, textAlign: 'center', marginBottom: '32px',
@@ -89,6 +81,8 @@ export default function PaginaInicial() {
             </Text>
 
             <TextField
+              value={username}
+              onChange={(text) => setUsername(text.target.value)}
               fullWidth
               textFieldColors={{
                 neutral: {
@@ -115,40 +109,52 @@ export default function PaginaInicial() {
           
 
           {/* Photo Area */}
-          <Box
-            styleSheet={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              maxWidth: '200px',
-              padding: '16px',
-              backgroundColor: appConfig.theme.colors.neutrals[600],
-              border: '1px solid',
-              borderColor: appConfig.theme.colors.neutrals[700],
-              borderRadius: '10px',
-              flex: 1,
-              minHeight: '240px',
-            }}
-          >
-            <Image
-              styleSheet={{
-                borderRadius: '50%',
-                marginBottom: '16px',
-              }}
-              src={`https://github.com/${username}.png`}
-            />
-            <Text
-              variant="body4"
-              styleSheet={{
-                color: appConfig.theme.colors.neutrals[200],
-                backgroundColor: appConfig.theme.colors.neutrals[900],
-                padding: '3px 10px',
-                borderRadius: '1000px'
-              }}
-            >
-              {username}
-            </Text>
-          </Box>
+          
+            
+            {
+              username.length < 2 
+              ? (
+                <>
+                  <p>Digite seu user</p>
+                </>
+              )
+              : (
+                  <Box
+                    styleSheet={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      maxWidth: '200px',
+                      padding: '16px',
+                      backgroundColor: appConfig.theme.colors.neutrals[600],
+                      border: '1px solid',
+                      borderColor: appConfig.theme.colors.neutrals[700],
+                      borderRadius: '10px',
+                      flex: 1,
+                      minHeight: '240px',
+                    }}
+                  >
+                      <Image
+                          styleSheet={{
+                            borderRadius: '50%',
+                            marginBottom: '16px',
+                          }}
+                          src={`https://github.com/${username}.png`}
+                      />
+                      <Text
+                        variant="body4"
+                        styleSheet={{
+                          color: appConfig.theme.colors.neutrals[200],
+                          backgroundColor: appConfig.theme.colors.neutrals[900],
+                          padding: '3px 10px',
+                          borderRadius: '1000px'
+                        }}
+                      >
+                    {name}
+                  </Text>
+                  </Box>
+              )
+            }
           {/* Photo Area */}
         </Box>
       </Box>
